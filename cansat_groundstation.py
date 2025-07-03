@@ -192,7 +192,7 @@ class MainWindow(QWidget):
         self.ax.set_zlim([-1,1])
         self.ax.set_box_aspect([1,1,1])
         self.ax.axis('off')
-        self.ax.view_init(elev=self.pitch, azim=self.roll)
+        self.ax.view_init(elev=self.pitch, azim=self.yaw)
         self.canvas.draw()
 
     def update_cube(self, pitch, roll, yaw=0):
@@ -233,7 +233,8 @@ class MainWindow(QWidget):
             # Filtro complementario
             self.pitch = self.alpha * (self.pitch + gy_val * dt) + (1 - self.alpha) * pitch_acc
             self.roll = self.alpha * (self.roll + gx_val * dt) + (1 - self.alpha) * roll_acc
-            self.update_cube(self.pitch, self.roll)
+            self.yaw += gz_val * dt
+            self.update_cube(self.pitch, self.roll, self.yaw)
             # Lee imagen
             while self.serial.read(1) != b'\xAA':
                 pass
