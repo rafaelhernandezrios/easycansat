@@ -21,6 +21,9 @@ MPU6050 mpu;
 #define VSYNC_GPIO_NUM    38
 #define HREF_GPIO_NUM     47
 #define PCLK_GPIO_NUM     13
+// Por defecto Serial es el USB (Serial0)
+#define ACP_RX_PIN 44   // GPIO44
+#define ACP_TX_PIN 43   // GPIO43
 
 #define FILTER_N 10
 int16_t ax_buf[FILTER_N], ay_buf[FILTER_N], az_buf[FILTER_N];
@@ -45,6 +48,7 @@ int16_t avgBuffer(int16_t* buf) {
 
 void setup() {
   Serial.begin(115200);
+  Serial1.begin(115200, SERIAL_8N1, ACP_RX_PIN, ACP_TX_PIN);
   // Inicializa cámara
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -75,7 +79,7 @@ void setup() {
     while (1);
   }
   // Inicializa MPU6050
-  Wire.begin(6, 7); // Usa los pines correctos para tu placa
+  Wire.begin(); // Usa los pines correctos para tu placa
   mpu.initialize();
   if (!mpu.testConnection()) {
     Serial.println("MPU6050 no encontrado!");
@@ -123,7 +127,14 @@ void loop() {
   Serial.print((int)gx_f); Serial.print(",");
   Serial.print((int)gy_f); Serial.print(",");
   Serial.print((int)gz_f); Serial.println(";");
-
+  Serial1.print("ACC:");
+  Serial1.print((int)ax_f); Serial1.print(",");
+  Serial1.print((int)ay_f); Serial1.print(",");
+  Serial1.print((int)az_f); Serial1.print(";");
+  Serial1.print("GYRO:");
+  Serial1.print((int)gx_f); Serial1.print(",");
+  Serial1.print((int)gy_f); Serial1.print(",");
+  Serial1.print((int)gz_f); Serial1.println(";");
   // Envía la imagen
   camera_fb_t *fb = esp_camera_fb_get();
   if (!fb) {
